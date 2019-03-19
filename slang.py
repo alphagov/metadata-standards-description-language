@@ -93,6 +93,43 @@ class RangeReference:
 
 
 ###############################################################################
+# Handlers for the Datatypes that can be declared in Spreadsheet Metadata.
+
+# The base class for all the types.
+class Type:
+    None
+
+
+# Any old string.
+class slang_String(Type):
+
+    def __str__(self):
+        return "slang::String"
+
+
+# Currency in Sterling, excluding VAT.
+class slang_GBPxVAT(Type):
+
+    def __str__(self):
+        return "slang::GBPxVAT"
+
+
+# Any old number.
+class slang_Number(Type):
+
+    def __str__(self):
+        return "slang::Number"
+
+
+# Any old formula.
+class slang_Formula(Type):
+
+    def __str__(self):
+        return "slang::Formula"
+
+
+
+###############################################################################
 # Internal Representation of a Spreadsheet Metadata Language description
 
 class state:
@@ -199,6 +236,15 @@ class slang:
         string = self.string_unescape_re.sub("\"", string)
 
         return string
+
+
+    # Built-in types
+    types = {
+            "String"  : slang_String,
+            "GBPxVAT" : slang_GBPxVAT,
+            "Number"  : slang_Number,
+            "Formula" : slang_Formula,
+            }
 
 
     # Deserialises something that specifies a Type and returns a String that
