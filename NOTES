@@ -1,0 +1,28 @@
+2019/03/19
+
+Requires GNU make and git.
+Uses the system python (I have python 2.7.10).
+May assume MacOS (I have Darwin-MacOS_10.13.6-x86_64).
+Assumes that you don't have root.
+
+Edit the user configuration in Makefile.
+Run `make prepare` to install odfpy from its git repository.
+Run `make run` to invoke a python that can find the installed odfpy.
+
+
+--------------------------------------------------------------------------------
+2019/03/12
+
+export PYTHONPATH=/Users/andybennett/git/odf-prototype/lib/lib/python2.7/site-packages
+
+
+INSTALLING ODFPY
+----------------
+
+https://github.com/eea/odfpy
+
+git clone https://github.com/eea/odfpy.git
+cd odfpy/
+python setup.py build
+python setup.py install --prefix=/Users/andybennett/git/odf-prototype/lib
+
