@@ -141,10 +141,13 @@ class state:
     # declare-type Price GBPxVAT
     def declare_type(self, name, type):
 
-        assert isinstance(name, str), ("state.declare_type: Expected name argument to be of type 'str' but e got %s." % name)
-        assert isinstance(type, str), ("state.declare_type: Expected type argument to be of type 'str' but e got %s." % type)
+        assert isinstance(name, str),  ("state.declare_type: Expected name argument to be of type 'str' but we got %s." % name)
+        assert isinstance(type, Type), ("state.declare_type: Expected type argument to be of type 'Type' but we got %s." % type)
+        assert (name not in self.keys),  ("state.delatre_type: Conflicting declaration for name %s as %s. %s has already been declared as %s." % (name, type, name, self.keys[name]))
 
-        print("declare_type: name = %s, type = %s" % (name, type))
+        self.keys[name] = type
+
+        print("  declare_type: name = %s, type = %s" % (name, type))
 
 
     # declare-header A3:D3
@@ -250,7 +253,9 @@ class slang:
     # Deserialises something that specifies a Type and returns a String that
     # describes the type.
     def type(self, arg):
-        return arg
+        assert (arg in self.types), ("slang.type: Unknown type %s." % arg)
+
+        return self.types[arg]()
 
 
     # Deserialises something that specifies a single cell and returns a
