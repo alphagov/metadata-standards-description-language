@@ -1,0 +1,74 @@
+
+Metadata Standards Proof Of Concept
+===================================
+
+Copyright (C) 2019, The Metadata Standards Team, Crown Copyright (Government Digital Service).
+
+1. Introduction
+
+	This is a proof of concept of the ideas presented in
+	https://docs.google.com/presentation/d/1eEc8s3_eNx_b5vMxWpF-BiueDfaz6mD6zbamXbSy1Z4
+
+	We try to implement a simple, delcarative language that can describe
+	spreadsheets so that they can be checked, validated and the data
+	extracted for further processing.
+
+
+2. Installation
+
+	The tools in this package can be run straight away; they do not need
+	to be built or installed. However, they do have a number of
+	dependencies which need to be satisfied.
+
+	For UNIX systems, the tools require GNU Make, git and python. These
+	tools are usually available by default or from system packages.
+
+	To install the dependencies, edit the user configuration in the
+	Makefile and then run `make prepare`. This will download odfpy from
+	its git repository and install it into a dedicated PYTHONPATH.
+
+	The whole package is distributed under an MIT license and as such is
+	free to use and modify as long as you agree to its terms.
+
+	Note: Should you have any trouble in setting up and using these tools,
+	please feel free to contact:
+
+	        + Andy Bennett <andyjpb@digital.cabinet-office.gov.uk>
+
+
+3. Usage
+
+        Use `make run` to invoke the tool with the correct environment."
+
+
+4. Compatibility Notes
+
+	Development of the tools has been done under MacOS
+	(Darwin-MacOS_10.13.6-x86_64) and therefore the tools may accidentally
+	assume that you are also running under MacOS.
+
+	We go to some lengths to not require root access.
+
+	Our work intends to cover the major spreadsheet formats in use around
+	UK Government however, this proof of concept currently only supports
+	spreadsheets in OpenDocument Format (.ods).
+
+	This package is intended to be a proof-of-concept. It is not expected
+	or guaranteed to be more widely applicable.
+
+
+5. What's next?
+
+	First and foremost, enjoy the tools and use and extend them with your
+	own spreadsheets.
+
+	Please feel free to any patches or extensions that you make so that
+	they can be integrated and distributed with this package.
+
+        Suggestion, extensions and patches are welcome.
+
+        If you have any questions or problems (even the slightest problems, or
+        the most stupid questions), then please feel free to get in touch with
+        us directly using the addresses above. We will try to help you, get you
+        going or point you in the right direction.
+
