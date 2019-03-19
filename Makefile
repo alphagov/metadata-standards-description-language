@@ -62,5 +62,5 @@ mrproper: clean
 	rm -fr ${GDS_PYTHON_MODULES}/
 
 run:
-	python
+	python poc.py
 

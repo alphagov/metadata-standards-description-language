@@ -83,6 +83,24 @@ class state:
 
 
 ###############################################################################
+# A spreadsheet and some metadata that might be valid for it.
+
+class instance:
+
+    def __init__(self, metadata, spreadsheet):
+
+        assert isinstance(metadata,    state), ("instance.__init__: Expected metadata argument to be of type 'state' by we got %s."   % metadata)
+        assert isinstance(spreadsheet, file),  ("instance.__init__: Expected spreadsheet argument to be of type 'file' by we got %s." % spreadsheet)
+
+
+    # Extract the data in the spreadsheet given the metadata
+    def extract(self):
+        # TODO
+        None
+
+
+
+###############################################################################
 # Handlers for each verb in the Spreadsheet Metadata Language
 
 # Handler for comments in metadata files.
@@ -153,4 +171,21 @@ class slang:
 
             line = self.input.readline()
             line_no += 1
+
+
+    # Validate a spreadsheet against the metadata object
+    # input is the file descriptor for a spreadsheet
+    # This validates the metadata itself and then constructs an instance object
+    # to return to the user.
+    # The construcion of the instance object is only successful if the
+    # metadata and the spreadsheet match well enough.
+    # The user can call validate() multiple times with a variety of
+    # spreadsheets.
+    def validate(self, input):
+
+        assert isinstance(input, file), ("slang.validate: Expected input argument to be of type 'file' but we got %s." % input)
+
+        # TODO: Validate all the metadata itelf then pass ourselves and our spreadsheet to the instance constructor which will validate the pair together.
+
+        return instance(self.state, input)
 
