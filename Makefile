@@ -55,9 +55,10 @@ odfpy: prepare-prereq ${PYTHONPATH}
 	fi
 
 clean:
+	rm -f *.pyc
 
 mrproper: clean
-	rm -fr *~
+	rm -f *~
 	rm -fr tmp.prepare/
 	rm -fr ${GDS_PYTHON_MODULES}/
 
