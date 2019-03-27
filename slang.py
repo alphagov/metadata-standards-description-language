@@ -101,25 +101,6 @@ class instance:
 
 
 ###############################################################################
-# Handlers for each verb in the Spreadsheet Metadata Language
-
-# Handler for comments in metadata files.
-# Ignore them!
-def comment(*args):
-    None
-
-# A list mapping verbs to procedures that expect a state object and the
-# arguments specified.
-handlers = {
-        "declare-type"   : state.declare_type,
-        "declare-header" : state.declare_header,
-        "declare-data"   : state.declare_data,
-        "#"              : comment,
-        }
-
-
-
-###############################################################################
 # ADT for the Spreadsheet Metadata Language
 
 class slang:
@@ -133,12 +114,68 @@ class slang:
         self.state = None
 
 
+    # Unescapes TAB, BACKSLASH and the C0 and C1 Control Characters.
+    def unescape(self, arg):
+        # TODO
+        return arg
+
+
+    # Deserialises a string and returns it.
+    def string(self, arg):
+        return arg
+
+
+    # Deserialises something that specifies a Type and returns a String that
+    # describes the type.
+    def type(self, arg):
+        return arg
+
+
+    # Deserialises something that specifies a range of cells and returns a
+    # Range object that describes it.
+    def range(self, arg):
+        return arg
+
+
+    # Deserialises anything and returns it as-is.
+    def anything(self, arg):
+        return arg
+
+
+    # Applys the deserialisers to the arguments and, if successful, returns the
+    # resulting deserialised arguments. If a deserialiser fails (i.e. throws an
+    # exception), the exception passes through to the caller.
+    def deserialise(self, deserialisers, arguments):
+        last_deserialiser = len(deserialisers) - 1
+        result = []
+
+        for x in range(0,  len(arguments)):
+            argument     = arguments[x]
+            deserialiser = None
+
+            # Variadic directives are denoted by the last deserialiser being a
+            # tuple containing one deserialiser rather than a bare
+            # deserialiser.
+            if x > last_deserialiser:
+                deserialiser = deserialisers[last_deserialiser]
+                assert isinstance(deserialiser, tuple), ("slang.deserialise: expected a tuple for variadic deserialiser whilst deserialising %s but we got %s" % (argument, deserialiser))
+            else:
+                deserialiser = deserialisers[x]
+
+            if (x >= last_deserialiser) and isinstance(deserialiser, tuple):
+                deserialiser = deserialiser[0]
+
+            result.append(deserialiser(self, argument))
+
+        return result
+
+
     # Parses the metadata file that we've been given and internalises it into
     # the state object. This procedure can only be called once per slang
     # object.
     def parse(self):
 
-        assert (self.state == None), ("slang.parse; parsing has already been done for this object!")
+        assert (self.state == None), ("slang.parse: parsing has already been done for this object!")
 
         self.state = state()
 
@@ -155,16 +192,18 @@ class slang:
                 line_no += 1
                 continue
 
-            proc      = line[0]
-            arguments = line[1:]
-            arguments.reverse()
-            arguments.append(self.state)
-            arguments.reverse()
+            proc      = self.unescape(line[0])
+            arguments = self.deserialise(((slang.unescape,),), line[1:])
 
             assert (proc in handlers), ("slang.parse: We don't know how to handle \"%s\" on line %s." % (original, line_no))
 
+            handler = handlers[proc]
+            arguments = self.deserialise(handler[1:], arguments)
+            arguments.reverse()
+            arguments.append(self.state)
+            arguments.reverse()
             try:
-                apply(handlers[proc], arguments)
+                apply(handler[0], arguments)
             except:
                 print("\n\nslang.parse: Error while handling \"%s\" on line %s.\n" % (original, line_no))
                 raise
@@ -188,4 +227,31 @@ class slang:
         # TODO: Validate all the metadata itelf then pass ourselves and our spreadsheet to the instance constructor which will validate the pair together.
 
         return instance(self.state, input)
+
+
+
+###############################################################################
+# Handlers for each verb in the Spreadsheet Metadata Language
+
+# Handler for comments in metadata files.
+# Ignore them!
+def comment(*args):
+    None
+
+# A list mapping directives to tuples that specify procedures to handle the
+# directive and deserialise the arguments.
+# The first item in the tuple specifies the procedure that handles the
+# directive. This procedure expects a state object and the deserialised
+# arguments specified.
+# The subsequent items in the tuple specify procedures that will deserialise
+# the arguments. The last item in the tuple may itself be a tuple. In that case
+# it is a tuple of length 1 that specifies a procedure that deserialises any
+# remaining arguments. This is useful for directives that can take a variable
+# number of arguments.
+handlers = {
+        "declare-type"   : (state.declare_type,   slang.string, slang.type),
+        "declare-header" : (state.declare_header, slang.range),
+        "declare-data"   : (state.declare_data,   slang.range),
+        "#"              : (comment,              (slang.anything,)),
+        }
 
