@@ -26,3 +26,24 @@ cd odfpy/
 python setup.py build
 python setup.py install --prefix=/Users/andybennett/git/odf-prototype/lib
 
+--------------------------------------------------------------------------------
+2019/03/27
+
+INSTALLING OPENPYXL
+-------------------
+
+export PYTHONPATH=/Users/andybennett/git/odf-prototype/lib/lib/python2.7/site-packages
+
+easy_install --prefix=/Users/andybennett/git/odf-prototype/lib pip
+lib/bin/pip install --prefix=/Users/andybennett/git/odf-prototype/lib openpyxl
+
+
+RUNNING GARETH'S POC
+--------------------
+
+export PYTHONPATH=/Users/andybennett/git/odf-prototype/lib/lib/python2.7/site-packages
+
+# Edit the file path in excelImport.py
+
+python excelImport.py
+
