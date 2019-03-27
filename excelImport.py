@@ -7,7 +7,7 @@ datalst = []
 
 # This will get the file, initial we have a default file, later we will allow them to input
 def getfile():
-    wb = opxl.load_workbook('/Users/garethheyes/Downloads/Excel Import Text.xlsx')
+    wb = opxl.load_workbook('./Excel Import Text.xlsx')
     # wb = opxl.load_workbook('/Users/garethheyes/Downloads/ExcelImport2.xlsx')
     return wb
 
