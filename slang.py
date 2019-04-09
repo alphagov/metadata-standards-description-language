@@ -204,6 +204,8 @@ class instance:
         assert isinstance(metadata,    state), ("instance.__init__: Expected metadata argument to be of type 'state' by we got %s."   % metadata)
         assert isinstance(spreadsheet, file),  ("instance.__init__: Expected spreadsheet argument to be of type 'file' by we got %s." % spreadsheet)
 
+        self.metadata    = metadata
+        self.spreadsheet = spreadsheet
 
     # Extract the data in the spreadsheet given the metadata
     def extract(self):
