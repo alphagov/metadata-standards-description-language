@@ -39,6 +39,8 @@
 
 import sys
 import re
+from   odf        import opendocument
+from   odf.table  import Table, TableRow, TableCell
 
 
 
@@ -89,6 +91,104 @@ class RangeReference:
 
     def __str__(self):
         return ("RangeReference(%s:%s)" % (self.start, self.end))
+
+
+
+# A base class that can be inherited from to encapsulate all the accessor logic
+# for different spreadsheet formats and spreadsheet reading libraries.
+# This differs from a CellValue because it's just the spreadsheet data. It can
+# be any cell in a spreadsheet and does not have to be associated with any
+# slang metadata.
+class Cell:
+    None
+
+
+
+# A wrapper around a Cell from an ODF Spreadsheet to encapsulate all the
+# accessor logic.
+class OdfCell(Cell):
+
+        def __init__(self, value, row, column):
+
+            assert isinstance(value,  opendocument.element.Element), ("OdfCell.__init__: Expected type argument to be of type 'opendocument.element.Element' but we got %s." % value)
+            assert isinstance(row,    int),                          ("OdfCell.__init__: Expected row argument ot be of type 'int' but we got %s." % row)
+            assert isinstance(column, int),                          ("OdfCell.__init__: Expected column argument ot be of type 'int' but we got %s." % column)
+
+            self.cell   = value
+            self.row    = row
+            self.column = column
+
+
+        def __str__(self):
+            return ("<Row: %d, Column: %d, Value: %s>" % (self.row, self.column, self.value()))
+
+
+        def test_attribute(self, key, value):
+            try:
+                if self.cell.attributes[key] == value:
+                    return True
+                else:
+                    return False
+
+            except KeyError:
+                return False
+
+
+        # Returns True if the user specified this cell as a formula; False
+        # otherwise.
+        # The value calculated and cached by the spreadsheet program may be
+        # available via value().
+        def isformula(self):
+            return ((u'urn:oasis:names:tc:opendocument:xmlns:table:1.0', u'formula') in self.value.attributes)
+
+
+        # Returns True if the value of this cell was formatted as a string by
+        # the spreadsheet program; False otherwise.
+        def isstring(self):
+            return self.test_attribute((u'urn:oasis:names:tc:opendocument:xmlns:office:1.0', u'value-type'), u'string')
+
+
+        # Returns True if the value of this cell was formatted as currency by
+        # the spreadsheet program; False otherwise.
+        def iscurrency(self):
+            return self.test_attribute((u'urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0', u'value-type'), u'currency')
+
+
+        # Returns the spreadsheet program's internal type designation for the
+        # cell.
+        # TODO: Hide the internal type designations behind an interface.
+        def type(self):
+            return unicode(self.cell.attributes[(u'urn:oasis:names:tc:opendocument:xmlns:office:1.0', u'value-type')])
+
+
+        # Returns the raw value that the user entered into the cell in the
+        # spreadsheet program.
+        # Returns a string.
+        def value(self):
+
+            if self.isstring():
+                return unicode(self.cell)
+
+            else:
+                return unicode(self.cell.attributes[(u'urn:oasis:names:tc:opendocument:xmlns:office:1.0', u'value')])
+
+
+        # Throws an exception if isformula() would have returned False.
+        # Returns the spreadsheet program's internal representation of the
+        # formula that the user specified in this cell.
+        # TODO: Provide a way to parse the formula as this procedure is not
+        #       much more useful than isformula() at the moment.
+        def formula(self):
+            unicode(self.cell.attributes[(u'urn:oasis:names:tc:opendocument:xmlns:table:1.0', u'formula')])
+
+
+        # Throws an exception if iscurrency() would have returned False.
+        # Returns the spreadsheet program's internal representation of which
+        # currency it thinks the cell's value is denominated in. For example,
+        # u'GBP'.
+        # TODO: Hide the internal currency designations behind an interface.
+        def currency(self):
+            unicode(self.cell.attributes[(u'urn:oasis:names:tc:opendocument:xmlns:office:1.0', u'currency')])
 
 
 

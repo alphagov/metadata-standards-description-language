@@ -47,3 +47,11 @@ export PYTHONPATH=/Users/andybennett/git/odf-prototype/lib/lib/python2.7/site-pa
 
 python excelImport.py
 
+--------------------------------------------------------------------------------
+2019/03/27
+
+USING ODFPY
+-----------
+
+https://github.com/eea/odfpy/blob/master/contrib/odscell/odscell
+
