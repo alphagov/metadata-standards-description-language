@@ -38,6 +38,57 @@
 # import slang
 
 import sys
+import re
+
+
+
+###############################################################################
+# Internal Representations of the Spreadsheet Language Domain Objects.
+
+cell_re = re.compile(r"([A-Z]+)([1-9][0-9]*)")
+
+# A reference to a specific cell in a spreadsheet.
+class CellReference:
+
+    def __init__(self, spec):
+
+        cell = cell_re.match(spec)
+        assert (cell != None), ("CellReference:.__init__ Invalid cell specifier %s." % spec)
+
+        column = cell.group(1)
+        row    = cell.group(2)
+
+        n = 0
+        for c in range(len(column)):
+            n = (n * 26) + (ord(column) - ord('A') + 1)
+
+        self.column = n - 1
+        self.row    = int(row) - 1
+
+        self.cell = spec
+
+
+    def __str__(self):
+        return ("%s" % self.cell)
+
+
+
+# A reference to a range of cells in a spreadsheet.
+class RangeReference:
+
+    def __init__(self, start, end):
+
+        assert isinstance(start, CellReference), ("RangeReference.__init__: Expected start argument to be of type 'CellReference' but we got %s." % start)
+        assert isinstance(end,   CellReference), ("RangeReference.__init__: Expected end argument to be of type 'CellReference' but we got %s." % end)
+
+        self.start = start
+        self.end   = end
+        self.width = (end.column   - start.column) + 1
+        self.height= (end.row      - start.row)    + 1
+
+
+    def __str__(self):
+        return ("RangeReference(%s:%s)" % (self.start, self.end))
 
 
 
