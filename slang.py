@@ -113,17 +113,22 @@ class state:
     # declare-header A3:D3
     def declare_header(self, range):
 
-        assert isinstance(range, str), ("state.declare_header: Expected range argument to be of type 'str' but e got %s." % range)
+        assert isinstance(range, RangeReference),           ("state.declare_header: Expected range argument to be of type 'RangeReference' but we got %s." % range)
+        assert ((range.height == 1) or (range.width) == 1), ("state.declare_header: range argument must describe either a single row or a single column. We got %s." % range)
 
-        print("declare_header: range = %s" % (range))
+        self.header = range
+
+        print("  declare_header: range = %s" % (range))
 
 
     # declare-data A4:D8
     def declare_data(self, range):
 
-        assert isinstance(range, str), ("state.declare_data: Expected range argument to be of type 'str' but e got %s." % range)
+        assert isinstance(range, RangeReference), ("state.declare_data: Expected range argument to be of type 'RangeReference' but we got %s." % range)
 
-        print("declare_data: range = %s" % (range))
+        self.data = range
+
+        print("  declare_data: range = %s" % (range))
 
 
     # Internal state
@@ -161,8 +166,17 @@ class slang:
 
         assert isinstance(input, file), ("slang.__init__: Expected input argument to be of type 'file' but we got %s." % input)
 
+        # User supplied parameters
         self.input = input
         self.state = None
+
+        # Internal Initialisation
+        self.string_extract_re        = re.compile(r"^\"(.*)\"$")
+        self.string_invalid_escape_re = re.compile(r"[^\\]\"")
+        self.string_unescape_re       = re.compile(r"\\\"")
+        self.cell_re                  = re.compile(r"[A-Z]+[1-9][0-9]*")
+        self.range_literal_re         = re.compile(r"([A-Z]+[1-9][0-9]*):([A-Z]+[1-9][0-9]*)")
+        self.range_named_re           = re.compile(r"([^!]*)!([^!]*)")
 
 
     # Unescapes TAB, BACKSLASH and the C0 and C1 Control Characters.
@@ -173,7 +187,18 @@ class slang:
 
     # Deserialises a string and returns it.
     def string(self, arg):
-        return arg
+
+        # Check for " as first and last character
+        string = self.string_extract_re.match(arg)
+        assert (string != None), ("slang.string: Could not find delimiters for %s." % arg)
+        string = string.group(1)
+
+        # Unescape double quotes
+        invalid_quotes = self.string_invalid_escape_re.match(string)
+        assert (invalid_quotes == None), ("slang.string: Unescaped double quote in %s." % arg)
+        string = self.string_unescape_re.sub("\"", string)
+
+        return string
 
 
     # Deserialises something that specifies a Type and returns a String that
@@ -182,10 +207,35 @@ class slang:
         return arg
 
 
+    # Deserialises something that specifies a single cell and returns a
+    # CellReference object that describes it.
+    def cell(self, arg):
+
+        cell = self.cell_re.match(arg)
+        assert (cell != None), ("slang.cell: Invalid cell specifier %s." % arg)
+
+        return CellReference(arg)
+
+
     # Deserialises something that specifies a range of cells and returns a
-    # Range object that describes it.
+    # RangeReference object that describes it.
+    # TODO: support SheetN!A3:D4
+    # TODO: Support escaped !s in sheet names and range name
     def range(self, arg):
-        return arg
+
+        # Look for a literal range
+        range = self.range_literal_re.match(arg)
+        if (range != None):
+            start = CellReference(range.group(1))
+            end   = CellReference(range.group(2))
+            return RangeReference(start, end)
+
+        # Look for a named range
+        range = self.range_named_re.match(arg)
+        if (range != None):
+            assert false, ("slang.range: Named Ranges are not yet supported. We got %s." % arg)
+
+        assert false, ("slang.range: Invalid range specifier %s." % arg)
 
 
     # Deserialises anything and returns it as-is.
