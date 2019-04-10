@@ -1,4 +1,4 @@
-.PHONY: help prepare prepare-prereq odfpy clean mrproper run poc poc-json
+.PHONY: help prepare prepare-prereq odfpy clean mrproper run poc poc-json poc-json-cols
 
 # User configuration
 export GDS_PREFIX=/Users/andybennett/git/odf-prototype
@@ -69,4 +69,7 @@ poc:
 
 poc-json:
 	python poc-json.py
+
+poc-json-cols:
+	python poc-json-cols.py
 
