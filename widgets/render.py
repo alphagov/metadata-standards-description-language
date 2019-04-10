@@ -1,4 +1,18 @@
 
+# TODO:
+#   + Write Javascript to detect when a rectangular range is selected in the spreadsheet
+#       It should be able to recognise single cells, single lines, single
+#       columns and rectangular areas where all the cells are selected.
+#   + Translate a valid spreadsheet range into a excel style range specifier.
+#   + Put the Excel range specifier in the title of the radio buttons.
+#       Including correctly calculating the number of rows / columns in parentheses.
+#   + Substitute the spreadsheet widgets for one that takes a filename and loads the table from that ODS file.
+#       Must return a properly escaped bit of HTML.
+#   + When the "Save and continue" button is pressed, add a dummy "declare-range <RANGE> <SELECTED RADIO ITEM>" line to a textarea underneath the button
+#   + Extend the "Save and continue" logic to be able to change the "Select the area that contains your spending data" prompt, clear the spreadsheet and radio button selections, and walk the user thru
+#       + Selecting the headings (individual cells only) and adding an appropraite "declare-type" directive to the textarea.
+#       + Selecting the data area and adding an adding an appropraite "declare-data" directive to the textarea.
+#       + Selecting the header area (single columns or single rows only) and adding an appropriate "declare-header" directive to the textarea. Alternatively, remember the locations of the declare-type cells and deduce an appropraite range (must be contiguous tho').
 
 def read_widget(filename):
     widget = open(filename, "r")
