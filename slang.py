@@ -37,10 +37,20 @@
 # program thus:
 # import slang
 
+from   __future__ import print_function
 import sys
 import re
 from   odf        import opendocument
 from   odf.table  import Table, TableRow, TableCell
+
+
+
+###############################################################################
+# Helpers
+
+def warn(*args, **kwargs):
+    sys.stderr.write("WARNING: ")
+    print(*args, file=sys.stderr, **kwargs)
 
 
 
