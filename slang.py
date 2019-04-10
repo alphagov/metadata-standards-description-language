@@ -342,17 +342,124 @@ class instance:
 
     def __init__(self, metadata, spreadsheet):
 
-        assert isinstance(metadata,    state), ("instance.__init__: Expected metadata argument to be of type 'state' by we got %s."   % metadata)
-        assert isinstance(spreadsheet, file),  ("instance.__init__: Expected spreadsheet argument to be of type 'file' by we got %s." % spreadsheet)
+        assert isinstance(metadata,    state), ("instance.__init__: Expected metadata argument to be of type 'state' but we got %s."   % metadata)
+        assert isinstance(spreadsheet, file),  ("instance.__init__: Expected spreadsheet argument to be of type 'file' but we got %s." % spreadsheet)
 
         self.metadata    = metadata
         self.spreadsheet = spreadsheet
+        self.unused_keys = dict(metadata.keys)
 
-    # Extract the data in the spreadsheet given the metadata
-    def extract(self):
-        # TODO
-        None
 
+    # Returns the appropriate (name, slang Type Constructor) tuple for the
+    # given row and column.
+    # row and column are relative to the data range, not the sheet. i.e. the
+    # top left cell in a range is always (0, 0).
+    # Assumes that the headers have already been parsed successfully.
+    # Assumes that the is either only one row or one column of headers.
+    def find_constructor(self, row, column):
+
+        assert isinstance(row,    int), ("find_constructor: Expected row argument ot be of type 'int' but we got %s." % row)
+        assert isinstance(column, int), ("find_constructor: Expected column argument ot be of type 'int' but we got %s." % column)
+
+        row    = row % len(self.header)
+        row    = self.header[row]
+        column = column % len(row)
+
+        return row[column]
+
+
+    # Read a range of cells from the sheet, call proc for each cell and return
+    # the results of proc as a two-dimensional array.
+    def parse_range(self, sheet, range_ref, cell_proc, row_proc = list.append):
+        result = []
+        rows   = sheet.getElementsByType(TableRow)
+        n_rows = len(rows)
+
+        assert (n_rows > range_ref.end.row), ("instance.parse_range: Sheet does not contain enough rows to contain the range specified! Range is at %s." % range_ref)
+
+        for r in range(range_ref.start.row, range_ref.end.row + 1):
+            new_row = []
+            cells   = rows[r].getElementsByType(TableCell)
+            n_cells = len(cells)
+
+            assert (n_cells > range_ref.end.column), ("instance.parse_range: Row %d does not contain enough columns to contain the range specified! Range is at %s. We got %s." % (r, range_ref, cells))
+
+            for c in range(range_ref.start.column, range_ref.end.column + 1):
+                new_row.append(cell_proc(OdfCell(cells[c], r, c)))
+
+            row_proc(result, new_row)
+
+        return result
+
+
+    # Read the contents of a cell that's supposed to be part of the header and
+    # return a tuple consisting of the name of the column and the slang Type
+    # constructor appropriate for the corresponding cells from the data
+    # region.
+    def parse_header_cell(self, cell):
+
+        assert isinstance(cell, Cell),        ("read_header: Expected cell argument to be of type 'Cell' but we got %s." % cell)
+        assert (cell.isstring()),             ("read_header: Expected Cell of type string but we got %s." % cell)
+
+        value = cell.value()
+        assert (value in self.metadata.keys), ("read_header: The spreadsheet contains an unexpected header! We got %s." % cell.value())
+
+        if value in self.unused_keys:
+            del self.unused_keys[value]
+        else:
+            warn("Duplicate header detected! We got %s" % value)
+
+        return (value, self.metadata.keys[cell.value()])
+
+
+    def parse_data_cell(self, cell):
+
+        assert isinstance(cell, Cell),        ("read_header: Expected cell argument to be of type 'Cell' but we got %s." % cell)
+
+        (name, type)  = self.find_constructor(cell.row, cell.column)
+        value = CellValue(type, name, cell)
+
+        value.check()
+
+        return value
+
+
+    # Extract the data in the spreadsheet given the metadata.
+    def extract(self, row_proc = list.append):
+
+        # Find the sheet inside the document.
+        # For now we just use the first sheet and ignore the rest.
+        workbook = opendocument.load(self.spreadsheet)
+        try:
+            workbook.spreadsheet
+
+        except NameError:
+            assert False, ("instance.extract: Workbook %s does not contain a spreadsheet!" % workbook)
+
+        sheets = workbook.spreadsheet.getElementsByType(Table)
+        assert (len(sheets) > 0), ("instance.extract: Workbook %s does not contain any sheets!" % workbook)
+
+        sheet1 = sheets[0]
+
+        # Read the header.
+        # Get an array of cell validators of the correct type for that column or row.
+        self.header = self.parse_range(sheet1, self.metadata.header, self.parse_header_cell)
+
+        # Emit warnings for any keys declared in the metadata that were not
+        # used in the spreadsheet.
+        for (key, value) in self.unused_keys.iteritems():
+            warn("Header %s of type %s was declared but not used!" % (key, value))
+
+        # Read the data
+        self.data = self.parse_range(sheet1, self.metadata.data, self.parse_data_cell, row_proc)
+
+        # Now the data is in an array. We need it in a dict or something?
+
+        return self.data
+
+
+    header = None
+    data   = None
 
 
 ###############################################################################
