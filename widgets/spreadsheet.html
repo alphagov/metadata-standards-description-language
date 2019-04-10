@@ -1,0 +1,44 @@
+<script>
+// Adapted from https://stackoverflow.com/questions/14443533/highlighting-and-un-highlight-a-table-row-on-click-from-row-to-row/27819543
+function init_spreadsheet() {
+	var table = document.getElementById('spreadsheet');
+
+	for (var i = 0; i < table.rows.length; i++) {
+		for (var j = 0; j < table.rows[i].cells.length; j++) {
+			table.rows[i].cells[j].onclick= function () {
+				if(this.hilite){
+					this.style.backgroundColor=this.origColor;
+					this.hilite = false;
+				}
+				else {
+					this.origColor=this.style.backgroundColor;
+					this.style.backgroundColor='#ffbf47';
+					this.hilite = true;
+				}
+			}
+		}
+	}
+}
+</script>
+<table id="spreadsheet" class="govuk-table" border="1" style="border-collapse: collapse;">
+	<!-- <tr><td colspan="3"><b>OFFICE SUPPLIES ORDER</b></td><td></td></tr> -->
+	<tr><td><b>OFFICE SUPPLIES ORDER</b></td><td></td><td></td><td></td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+	<tr>
+		<td><i>Item</i></td>
+		<td><i>Price</i></td>
+		<td><i>Quantity</i></td>
+		<td><i>Total</i></td>
+	</tr>
+	<tr><td>Copy paper</td>     <td>£2.49</td> <td>20</td><td>£49.80</td></tr>
+	<tr><td>Post-It Notes</td>  <td>£5.99</td> <td>10</td><td>£59.90</td></tr>
+	<tr><td>Stapler</td>        <td>£7.99</td> <td>5</td> <td>£39.95</td></tr>
+	<tr><td>Paper punch</td>    <td>£11.90</td><td>15</td><td>£178.50</td></tr>
+	<tr><td>Highlighter pen</td><td>£1.99</td> <td>50</td><td>£99.50</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+	<!-- <tr><td colspan="3">TOTAL COST OF ORDER</td><td>£427.65</td></tr> -->
+	<tr><td>TOTAL COST OF ORDER</td><td></td><td></td><td>£427.65</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+	<!-- <tr><td colspan="3">AVERAGE PRICE</td><td>£6.07</td></tr> -->
+	<tr><td>AVERAGE PRICE</td><td></td><td></td><td>£6.07</td></tr> 
+</table>
