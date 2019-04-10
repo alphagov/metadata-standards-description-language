@@ -192,6 +192,37 @@ class OdfCell(Cell):
 
 
 
+# A slang representation of some data from a spreadsheet cell.
+# It consists of a wrapper around the actual contents of a cell along with the
+# slang type annotations required to validate and extract it.
+class CellValue:
+
+    def __init__(self, type, name, value):
+
+        assert isinstance(type,  Type),    ("CellValue.__init__: Expected type argument to be of type 'Type' but we got %s." % type)
+        assert isinstance(name,  unicode), ("CellValue.__init__: Expected name argument to be of type 'unicode' but we got %s." % name)
+        assert isinstance(value, Cell),    ("CellValue.__init__: Expected value argument to be of type 'Cell' but we got %s." % value)
+
+        self.type = type
+        self.name = name
+        self.cell = value
+
+
+    # TODO: Remove this: it's just a hack for poc.py to easily display things.
+    def __repr__(self):
+        return ("<%s, %s, %s>" % (self.type, self.name, self.value()))
+
+
+    def check(self):
+
+        assert True
+
+
+    def value(self):
+        return self.cell.value()
+
+
+
 ###############################################################################
 # Handlers for the Datatypes that can be declared in Spreadsheet Metadata.
 
