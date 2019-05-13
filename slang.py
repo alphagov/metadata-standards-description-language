@@ -171,6 +171,22 @@ class state:
         print("  declare_data: range = %s" % (range))
 
 
+    # Check that we have most of what we need to extract some data from a spreadsheet
+    def validate(self):
+
+        assert isinstance(self.keys,   dict),           ("state.validate: keys is no longer a dictionary! We got %s." % self.keys)
+        assert isinstance(self.header, RangeReference), ("state.validate: Please provide a valid header reference with the 'declare_header' directive. We got %s." % self.header)
+        assert isinstance(self.data,   RangeReference), ("state.validate: Please provide a valid data reference with the 'declare_data' directive. We got %s." % self.data)
+
+        if (self.header.height == 1):
+            assert (self.data.width == self.header.width),   ("state.validate: header describes a row so data must have the same number of columns. We got header = %s and data = %s." % (self.header, self.data))
+
+        if (self.header.width == 1):
+            assert (self.data.height == self.header.height), ("state.validate: header describes a column so data must have the same number of rows. We got header = %s and data = %s." % (self.header, self.data))
+
+        return True
+
+
     # Internal state
     keys   = {}
     header = None
@@ -375,8 +391,7 @@ class slang:
     def validate(self, input):
 
         assert isinstance(input, file), ("slang.validate: Expected input argument to be of type 'file' but we got %s." % input)
-
-        # TODO: Validate all the metadata itelf then pass ourselves and our spreadsheet to the instance constructor which will validate the pair together.
+        assert self.state.validate(),   ("slang.validate: Could not validate metadata!") # Doesn't need an error message because slang.validate will make its own, more specific, assertions.
 
         return instance(self.state, input)
 
