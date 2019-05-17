@@ -1,17 +1,20 @@
 
-Metadata Standards Proof Of Concept
-===================================
+Data Standards: Spreadsheet Description Language
+================================================
 
-Copyright (C) 2019, The Metadata Standards Team, Crown Copyright (Government Digital Service).
+Copyright (C) 2019, The Data Standards Team, Crown Copyright (Government Digital Service).
 
 1. Introduction
 
 	This is a proof of concept of the ideas presented in
 	https://docs.google.com/presentation/d/1eEc8s3_eNx_b5vMxWpF-BiueDfaz6mD6zbamXbSy1Z4
 
-	We try to implement a simple, delcarative language that can describe
+	We implement a simple, delcarative language that can describe
 	spreadsheets so that they can be checked, validated and the data
 	extracted for further processing.
+
+	There is a webpage with more information about the project at
+	https://alphagov.github.io/metadata-standards-description-language/
 
 
 2. Installation
@@ -38,7 +41,10 @@ Copyright (C) 2019, The Metadata Standards Team, Crown Copyright (Government Dig
 
 3. Usage
 
-        Use `make run` to invoke the tool with the correct environment."
+        Use `make run` to invoke the tool with the correct environment.
+
+	You can also use `make poc-json` to run the demo that outputs the
+	spreadsheet data as a JSON document.
 
 
 4. Compatibility Notes
